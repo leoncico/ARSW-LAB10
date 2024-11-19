@@ -1,28 +1,26 @@
+const bigInt = require("big-integer");
+
+const memory = {};
+
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
-    let nth = req.body.nth
-    let memory = {}
+    const nth = req.body.nth;
+    function fibonacci(n) {
+        const bigN = bigInt(n);
+        const key = bigN.toString();
 
-    function fiboMemo(n, fn){
-        if (n in memory){
-            return memory[n]
-        }
-        else{
-            memory[n] = fn(n)
-            return memory[n]
-        }
+        if (bigN.equals(0)) return bigInt(0);
+        if (bigN.equals(1)) return bigInt(1);
+        if (key in memory) return memory[key];
+
+        memory[key] = fibonacci(bigN.minus(1)).plus(fibonacci(bigN.minus(2)));
+        return memory[key];
     }
 
-    let fibonacci = function(n) {
-        if (n <= 0) return 0
-        if (n === 1) return 1
-        return fibonacci(n - 1) + fibonacci(n - 2)
-    }
-
-    let answer = fiboMemo(nth, fibonacci)
+    const answer = fibonacci(bigInt(nth));
 
     context.res = {
         body: answer.toString()
-    }
-}
+    };
+};
